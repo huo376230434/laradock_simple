@@ -17,6 +17,7 @@ services:
 
 ### PHP-FPM ##############################################
     php-fpm:
+      restart: always
       build:
         context: ./php-fpm
         args:
@@ -90,6 +91,7 @@ services:
 
 ### PHP Worker ############################################
     php-worker:
+      restart: always
       build:
         context: ./php-worker
         args:
@@ -125,6 +127,7 @@ services:
 
 ### NGINX Server #########################################
     nginx:
+      restart: always
       build:
         context: ./nginx
         args:
@@ -150,6 +153,7 @@ services:
 
 ### MySQL ################################################
     mysql:
+      restart: always
       build:
         context: ./mysql
         args:
@@ -170,6 +174,7 @@ services:
 
 ### Redis ################################################
     redis:
+      restart: always
       build: ./redis
       volumes:
         - ${DATA_PATH_HOST}/redis:/data
@@ -180,6 +185,7 @@ services:
 
 ### phpMyAdmin ###########################################
     phpmyadmin:
+      restart: always
       build: ./phpmyadmin
       environment:
         - PMA_ARBITRARY=1
@@ -197,6 +203,7 @@ services:
 
 ### Laravel Echo Server #######################################
     laravel-echo-server:
+      restart: always
       build:
         context: ./laravel-echo-server
         args:
@@ -213,6 +220,7 @@ services:
 
 ### Docker-in-Docker ################################################
     docker-in-docker:
+      restart: always
       image: docker:dind
       privileged: true
       volumes:
