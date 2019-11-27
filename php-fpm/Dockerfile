@@ -462,19 +462,6 @@ RUN if [ ${INSTALL_IONCUBE} = true ]; then \
 ;fi
 
 ###########################################################################
-# Opcache:
-###########################################################################
-
-ARG INSTALL_OPCACHE=false
-
-RUN if [ ${INSTALL_OPCACHE} = true ]; then \
-    docker-php-ext-install opcache \
-;fi
-
-# Copy opcache configration
-COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-
-###########################################################################
 # Mysqli Modifications:
 ###########################################################################
 
@@ -769,6 +756,22 @@ RUN if [ ${INSTALL_MAILPARSE} = true ]; then \
 
 RUN set -xe; php -v | head -n 1 | grep -q "PHP ${LARADOCK_PHP_VERSION}."
 
+
+###########################################################################
+# Opcache:
+###########################################################################
+
+ARG INSTALL_OPCACHE=false
+
+RUN if [ ${INSTALL_OPCACHE} = true ]; then \
+    docker-php-ext-install opcache \
+;fi
+
+# Copy opcache configration
+COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+
+
 #
 #--------------------------------------------------------------------------
 # Final Touch
@@ -794,6 +797,9 @@ RUN if [ ${INSTALL_FAKETIME} = true ]; then \
 ;fi
 
 WORKDIR /var/www
+
+
+
 
 CMD ["php-fpm"]
 

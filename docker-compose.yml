@@ -98,6 +98,8 @@ services:
           - CHANGE_SOURCE=${CHANGE_SOURCE}
           - COMPOSER_REPO_PACKAGIST=${COMPOSER_REPO_PACKAGIST}
           - PHP_VERSION=${PHP_VERSION}
+          - INSTALL_MYSQL_CLIENT=${PHP_WORKER_INSTALL_MYSQL}
+          - INSTALL_LIBREOFFICE+${PHP_WORKER_INSTALL_LIBREOFFICE}
           - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
           - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
           - INSTALL_PHALCON=${PHP_WORKER_INSTALL_PHALCON}
@@ -122,6 +124,45 @@ services:
 #        - workspace
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
+      networks:
+        - backend
+
+
+
+  ### PHP Swoole ############################################
+    php-swoole:
+      restart: always
+      build:
+        context: ./php-swoole
+        args:
+          - CHANGE_SOURCE=${CHANGE_SOURCE}
+          - PHP_VERSION=${PHP_VERSION}
+          - INSTALL_PGSQL=${PHP_SWOOLE_INSTALL_PGSQL}
+          - INSTALL_BCMATH=${PHP_SWOOLE_INSTALL_BCMATH}
+          - INSTALL_PHALCON=${PHP_SWOOLE_INSTALL_PHALCON}
+          - INSTALL_SOAP=${PHP_SWOOLE_INSTALL_SOAP}
+          - INSTALL_ZIP_ARCHIVE=${PHP_SWOOLE_INSTALL_ZIP_ARCHIVE}
+          - INSTALL_MYSQL_CLIENT=${PHP_SWOOLE_INSTALL_MYSQL_CLIENT}
+          - INSTALL_AMQP=${PHP_SWOOLE_INSTALL_AMQP}
+          - INSTALL_CASSANDRA=${PHP_SWOOLE_INSTALL_CASSANDRA}
+          - INSTALL_GEARMAN=${PHP_SWOOLE_INSTALL_GEARMAN}
+          - INSTALL_GHOSTSCRIPT=${PHP_SWOOLE_INSTALL_GHOSTSCRIPT}
+          - INSTALL_SWOOLE=${PHP_SWOOLE_INSTALL_SWOOLE}
+          - INSTALL_TAINT=${PHP_SWOOLE_INSTALL_TAINT}
+          - INSTALL_FFMPEG=${PHP_SWOOLE_INSTALL_FFMPEG}
+          - INSTALL_GMP=${PHP_SWOOLE_INSTALL_GMP}
+          - INSTALL_REDIS=${PHP_SWOOLE_INSTALL_REDIS}
+          - PUID=${PHP_SWOOLE_PUID}
+          - PGID=${PHP_SWOOLE_PGID}
+      volumes:
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+        - ./php-swoole/supervisord.d:/etc/supervisord.d
+      #      depends_on:
+      #        - workspace
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      ports:
+        - "${SWOOLE_HOST_HTTP_PORT}:5200"
       networks:
         - backend
 

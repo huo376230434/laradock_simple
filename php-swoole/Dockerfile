@@ -163,7 +163,7 @@ RUN if [ ${INSTALL_REDIS} = true ]; then \
 # Swoole EXTENSION
 ###########################################################################
 
-ARG INSTALL_SWOOLE=false
+ARG INSTALL_SWOOLE=true
 
 RUN if [ ${INSTALL_SWOOLE} = true ]; then \
     # Install Php Swoole Extension
@@ -213,64 +213,6 @@ RUN php -v | head -n 1 | grep -q "PHP ${PHP_VERSION}."
 
 
 
-###########################################################################
-# Composer:
-###########################################################################
-
-USER root
-
-
-
-# Install composer and add its bin to the PATH.
-RUN curl -sS https://getcomposer.org/installer | php
-RUN    echo "export PATH=${PATH}:/var/www/vendor/bin" >> ~/.bashrc
-RUN   mv composer.phar /usr/local/bin/composer
-
-# Source the bash
-RUN . ~/.bashrc
-
-# Add the composer.json
-COPY ./composer.json /root/.composer/composer.json
-
-# Add the auth.json for magento 2 credentials
-COPY ./auth.json /root/.composer/auth.json
-
-
-# Export composer vendor path
-RUN echo "" >> ~/.bashrc && \
-    echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc
-
-
-# Check if global install need to be ran
-ARG COMPOSER_GLOBAL_INSTALL=false
-ENV COMPOSER_GLOBAL_INSTALL ${COMPOSER_GLOBAL_INSTALL}
-
-RUN if [ ${COMPOSER_GLOBAL_INSTALL} = true ]; then \
-    # run the install
-    composer global install \
-;fi
-
-# Check if auth file is disabled
-ARG COMPOSER_AUTH=false
-ENV COMPOSER_AUTH ${COMPOSER_AUTH}
-
-RUN if [ ${COMPOSER_AUTH} = false ]; then \
-    # remove the file
-    rm /root/.composer/auth.json \
-;fi
-
-ARG COMPOSER_REPO_PACKAGIST
-ENV COMPOSER_REPO_PACKAGIST ${COMPOSER_REPO_PACKAGIST}
-
-RUN if [ ${COMPOSER_REPO_PACKAGIST} ]; then \
-    composer config -g repo.packagist composer ${COMPOSER_REPO_PACKAGIST} \
-;fi
-
-# Export composer vendor path
-RUN echo "" >> ~/.bashrc && \
-    echo 'export PATH="~/.composer/vendor/bin:$PATH"' >> ~/.bashrc
-
-
 # Clean up
 RUN rm /var/cache/apk/* \
     && mkdir -p /var/www
@@ -278,24 +220,8 @@ RUN rm /var/cache/apk/* \
 WORKDIR /etc/supervisor/conf.d/
 
 
-#CMD php -r '$path="/var/www";var_dump($path); $handler = opendir($path);  $arr = []; while( ($filename = readdir($handler)) !== false ) { if($filename != "." && $filename != ".."){  $temp_path = $path . "/" . $filename;  if ( is_dir($temp_path) ) {  array_push($arr, $temp_path); }  } }           closedir($handler);            print_r($arr);file_put_content("haha","/var/www/haha");'
 
-#CMD php -r '$path="/var/www";var_dump($path); $handler = opendir($path);  $arr = []; \
-#
-#while( ($filename = readdir($handler)) !== false ) { if($filename != "." && $filename != ".."){  $temp_path = $path . "/" . $filename;  if ( is_dir($temp_path) ) {  array_push($arr, $temp_path); }  } }           closedir($handler);            print_r($arr);file_put_contents("haha","/var/www/haha");' && crond && /usr/bin/supervisord -n -c /etc/supervisord.conf;
-#
 
-ARG INSTALL_MYSQL_CLIENT=false
-
-RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
-    apk  add mysql-client \
-;fi
-
-ARG INSTALL_LIBREOFFICE=false
-
-RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
-    apk  add  libreoffice \
-;fi
 #
 #--------------------------------------------------------------------------
 # Optional Supervisord Configuration
@@ -308,18 +234,10 @@ RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
 COPY supervisord.conf /etc/supervisord.conf
 
 
-#
-#CMD php -r '$path="/var/www";var_dump($path); $handler = opendir($path); $arr = [];$crontab_path = "/etc/crontabs/root";\
-#            while( ($filename = readdir($handler)) !== false ) {\
-#                if($filename != "." && $filename != ".." && is_dir($path . "/" . $filename) && file_exists($path . "/" . $filename."/artisan")){\
-#                    $command_str = "* * * * *  php /var/www/$filename/artisan schedule:run >> /dev/null 2>&1".PHP_EOL;\
-#                    if (!strstr(file_get_contents($crontab_path), $command_str)) file_put_contents($crontab_path, $command_str, FILE_APPEND);\
-#                } }' && crond && /usr/bin/supervisord -n -c /etc/supervisord.conf;
+
+
+#CMD   /usr/bin/supervisord -n -c /etc/supervisord.conf;
 #COPY ./../crontab /var/spool/cron/crontabs/root
 
 
-#CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
-
-ADD ./startup.sh /opt/startup.sh
-RUN sed -i 's/\r//g' /opt/startup.sh
-CMD ["/bin/sh", "/opt/startup.sh"]
+CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
