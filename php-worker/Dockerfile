@@ -321,5 +321,7 @@ COPY supervisord.conf /etc/supervisord.conf
 #CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
 
 ADD ./startup.sh /opt/startup.sh
-RUN sed -i 's/\r//g' /opt/startup.sh
+RUN sed -i 's/\r//g'  /opt/startup.sh
+ADD ./init.php /opt/init.php
+
 CMD ["/bin/sh", "/opt/startup.sh"]
